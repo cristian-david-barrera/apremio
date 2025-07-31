@@ -150,3 +150,69 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
     });
   }
 };
+
+export const createUser = async (req: AuthRequest, res: Response) => {
+  try {
+    const { nombre, apellido, usuario, dni, estado, rol, domicilio, activo, password } = req.body;
+    const currentUserRol = req.user.rol;
+
+    // Solo admin puede crear usuarios
+    if (currentUserRol !== 'admin') {
+      return res.status(403).json({ 
+        message: 'No tienes permisos para crear usuarios' 
+      });
+    }
+
+    // Validar campos requeridos
+    if (!nombre || !apellido || !usuario || !dni || !password) {
+      return res.status(400).json({ 
+        message: 'Nombre, apellido, usuario, DNI y contraseña son requeridos' 
+      });
+    }
+
+    // Verificar que el usuario no exista
+    const existingUser = await pool.query(
+      'SELECT id FROM public.usuario WHERE usuario = $1',
+      [usuario]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ 
+        message: 'El nombre de usuario ya existe' 
+      });
+    }
+
+    // Hashear la contraseña
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear usuario
+    const result = await pool.query(
+      `INSERT INTO public.usuario (nombre, apellido, usuario, clave, dni, fecha, estado, rol, domicilio, activo) 
+       VALUES ($1, $2, $3, $4, $5, CURRENT_DATE, $6, $7, $8, $9) 
+       RETURNING id, nombre, apellido, usuario, dni, fecha, estado, rol, domicilio, activo`,
+      [
+        nombre,
+        apellido,
+        usuario,
+        hashedPassword,
+        dni,
+        estado || 'activo',
+        rol || 'user',
+        domicilio || '',
+        activo !== undefined ? activo : true
+      ]
+    );
+
+    res.status(201).json({
+      message: 'Usuario creado correctamente',
+      user: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error al crear usuario:', error);
+    res.status(500).json({ 
+      message: 'Error interno del servidor' 
+    });
+  }
+};

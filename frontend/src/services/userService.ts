@@ -31,6 +31,18 @@ export interface UpdateUserData {
   newPassword?: string;
 }
 
+export interface CreateUserData {
+  nombre: string;
+  apellido: string;
+  usuario: string;
+  dni: number;
+  estado: string;
+  rol: string;
+  domicilio: string;
+  activo: boolean;
+  password: string;
+}
+
 export interface ChangePasswordData {
   currentPassword?: string;
   newPassword: string;
@@ -39,6 +51,11 @@ export interface ChangePasswordData {
 export const userService = {
   async getAllUsers(): Promise<User[]> {
     const response = await api.get<User[]>('/users');
+    return response.data;
+  },
+
+  async createUser(userData: CreateUserData): Promise<{ message: string; user: User }> {
+    const response = await api.post('/users', userData);
     return response.data;
   },
 

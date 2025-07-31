@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { UserList } from '../../components/User/UserList';
 import { EditUserForm } from '../../components/User/EditUserForm';
+import { CreateUserForm } from '../../components/User/CreateUserForm';
 import type { User } from '../../types/auth';
 import styles from './UsuarioPage.module.css';
 
@@ -12,6 +13,7 @@ interface UsuarioPageProps {
 export function UsuarioPage({ onBack }: UsuarioPageProps) {
   const { user: currentUser } = useAuth();
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const isAdmin = currentUser?.rol === 'admin';
@@ -20,13 +22,26 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
     setEditingUser(user);
   };
 
+  const handleCreateUser = () => {
+    setShowCreateForm(true);
+  };
+
   const handleEditSuccess = (_updatedUser: User) => {
     setEditingUser(null);
-    setRefreshKey(prev => prev + 1); 
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleCreateSuccess = (_newUser: User) => {
+    setShowCreateForm(false);
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleEditCancel = () => {
     setEditingUser(null);
+  };
+
+  const handleCreateCancel = () => {
+    setShowCreateForm(false);
   };
 
   const handleEditOwnProfile = () => {
@@ -51,7 +66,8 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
           // Vista de administrador: lista de todos los usuarios
           <UserList 
             key={refreshKey}
-            onEditUser={handleEditUser} 
+            onEditUser={handleEditUser}
+            onCreateUser={handleCreateUser}
           />
         ) : (
           // Vista de usuario común: solo su perfil
@@ -122,6 +138,14 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
           user={editingUser}
           onSuccess={handleEditSuccess}
           onCancel={handleEditCancel}
+        />
+      )}
+
+      {/* Modal de creación */}
+      {showCreateForm && (
+        <CreateUserForm
+          onSuccess={handleCreateSuccess}
+          onCancel={handleCreateCancel}
         />
       )}
     </div>

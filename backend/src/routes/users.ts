@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllUsers, updateUser, changePassword } from '../controllers/userController';
+import { getAllUsers, updateUser, changePassword, createUser } from '../controllers/userController';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
@@ -8,6 +8,7 @@ const router = Router();
 router.use(authenticateToken);
 
 router.get('/', getAllUsers);
+router.post('/', createUser); 
 router.put('/:id', updateUser);
 router.put('/:id/change-password', changePassword);
 

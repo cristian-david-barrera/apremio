@@ -160,7 +160,7 @@ export function EditUserForm({ user, onSuccess, onCancel }: EditUserFormProps) {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>Domicilio</label>
+                <label className={styles.label}>EMAIL</label>
                 <input
                   type="text"
                   className={`${styles.input} ${errors.domicilio ? styles.inputError : ''}`}
