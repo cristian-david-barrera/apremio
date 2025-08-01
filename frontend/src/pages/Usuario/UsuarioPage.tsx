@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { UserList } from '../../components/User/UserList';
 import { EditUserForm } from '../../components/User/EditUserForm';
 import { CreateUserForm } from '../../components/User/CreateUserForm';
+import { ChangePasswordForm } from '../../components/User/ChangePasswordForm';
 import type { User } from '../../types/auth';
 import styles from './UsuarioPage.module.css';
 
@@ -14,6 +15,7 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
   const { user: currentUser } = useAuth();
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showChangePasswordForm, SetShowChangePasswordForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const isAdmin = currentUser?.rol === 'admin';
@@ -26,6 +28,10 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
     setShowCreateForm(true);
   };
 
+  const handleChangePassword = () => {
+   SetShowChangePasswordForm(true);
+  }
+
   const handleEditSuccess = (_updatedUser: User) => {
     setEditingUser(null);
     setRefreshKey(prev => prev + 1);
@@ -36,6 +42,10 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleChangePasswordSuccess = () => {
+    SetShowChangePasswordForm(false);
+  }
+   
   const handleEditCancel = () => {
     setEditingUser(null);
   };
@@ -43,6 +53,12 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
   const handleCreateCancel = () => {
     setShowCreateForm(false);
   };
+
+  const handleChangePasswordCancel = () => {
+   SetShowChangePasswordForm(false);
+  }
+   
+  
 
   const handleEditOwnProfile = () => {
     if (currentUser) {
@@ -123,7 +139,10 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
                 >
                   ✏️ Editar Mi Perfil
                 </button>
-                <button className={styles.changePasswordButton}>
+
+                <button 
+                onClick={handleChangePassword}
+                className={styles.changePasswordButton}>
                   🔐 Cambiar Contraseña
                 </button>
               </div>
@@ -148,6 +167,13 @@ export function UsuarioPage({ onBack }: UsuarioPageProps) {
           onCancel={handleCreateCancel}
         />
       )}
+      {/* Modal de cambio de contraseña  */}
+    {showChangePasswordForm && (
+      <ChangePasswordForm
+      onSuccess={handleChangePasswordSuccess}
+      onCancel={handleChangePasswordCancel}
+       />
+    )}
     </div>
   );
 }
